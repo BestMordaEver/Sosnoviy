@@ -10,6 +10,7 @@ local groups = persistence.load(config.savefile) or {}	-- all changes to groups 
 ]]
 
 local client = discordia.Client()
+local mutex = discordia.Mutex()
 						-- all commands should follow the same pattern - prefix + command + arguments
 local commands = {		-- commands are one-word only. you can have space between prefix and command ("+ add" is valid")
 	prefix = "+",
@@ -24,7 +25,8 @@ local commands = {		-- commands are one-word only. you can have space between pr
 	-- meta commands
 	list = "list",		-- print out the list of registered groups and channels in them
 	help = "help",		-- print out help text
-	shutdown = "shutdown"
+	shutdown = "shutdown",
+	test = "test"
 }
 
 local actions = {
@@ -155,15 +157,18 @@ local actions = {
 	[commands.shutdown] = function (message)
 		message.channel:send("Shutting down gracefully\nAm no longer alive")
 		client:stop()
+	end,
+	
+	[commands.test] = function (message)	-- does nothing, but this can be changed (づ｡◕__◕｡)づ
+		
 	end
 }
 
 client:on('messageCreate', function(message)
-	-- Only Bor is valid...
-	if message.author.id ~= "272093076778909707" and message.author.id ~= "188731184501620736" then return end
-	-- Check for prefix
+	if message.author.id ~= "272093076778909707" and message.author.id ~= "188731184501620736" then return end	-- Only Bor is valid...
 	local _, _, command = message.content:find(commands.prefix.."%s?(%a+).*")
-	print(pcall(function() if actions[command] then actions[command](message) end end))
+	local res, msg = pcall(function() if actions[command] then actions[command](message) end end)
+	if not res then message.channel:send("Something went wrong, outputting error message...\n"..msg) end
 end)
 
 client:on('ready', function()
