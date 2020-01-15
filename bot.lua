@@ -23,7 +23,8 @@ local commands = {		-- commands are one-word only. you can have space between pr
 	edit = "edit",		-- edit the last message sent to group
 	-- meta commands
 	list = "list",		-- print out the list of registered groups and channels in them
-	help = "help"		-- print out help text	
+	help = "help",		-- print out help text
+	shutdown = "shutdown"
 }
 
 local actions = {
@@ -104,7 +105,7 @@ local actions = {
 		if groups[groupName] then
 			message.channel:send("Editing last message sent to `"..groupName.."` group")
 			for k, v in pairs(groups[groupName]) do
-				client:getMessage(v):setContent(msg)
+				client:getChannel(k):getMessage(v):setContent(msg)
 				message.channel:send("Edited last message sent to `"..client:getChannel(k).name.."` on server `"..client:getChannel(k).guild.name.."`")
 			end
 		else
@@ -130,12 +131,13 @@ local actions = {
 	
 	[commands.help] = function (message)
 		message.channel:send("This bot helps you to organize your newsletter channels. Use prefix '+' before your commands, like +help.\n**"..
-			commands.add.."** *{group_name} [channelID]*: subscribe the channel with *[channelID]* to the *{group_name}* newsletter. Defaults to current channel.\n**"..
-			commands.remove.."** *{group_name} [channelID]*: unsubscribe the channel with *[channelID]* from the *{group_name}* newsletter. Defaults to current channel.\n**"..
+			commands.add.."** *{group_name} [channelID]*: subscribe the *[channelID]* channel to the *{group_name}* newsletter. Defaults to current channel.\n**"..
+			commands.remove.."** *{group_name} [channelID]*: unsubscribe the *[channelID]* channel from the *{group_name}* newsletter. Defaults to current channel.\n**"..
 			commands.send.."** *{group_name} {message}*: send *{message}* to all channels, that are subscribed to *{group_name}* newsletter.\n**"..
-			commands.delete.."** *{group_name}*: delete last message sent to *{group_name}*. You can delete only the last message sent.\n**"..
-			commands.edit.."** *{group_name} {message}*: change last message sent to all channels, that are subscribed to *{group_name}* newsletter to *{message}*.\n**"..
-			commands.list.."**: print out all the registered newsletter groups and channels")
+			commands.delete.."** *{group_name}*: delete last message sent to *{group_name}* newsletter. You can delete only the last sent message.\n**"..
+			commands.edit.."** *{group_name} {message}*: change last message sent to *{group_name}* newsletter to *{message}*.\n**"..
+			commands.list.."**: print out all the registered newsletter groups and channels.\n**"..
+			commands.shutdown.."**: allow the bot to die in peace.")
 	end,
 	
 	[commands.update] = function (message)
@@ -148,6 +150,11 @@ local actions = {
 			end
 		end
 		persistence.store(config.savefile, groups)
+	end,
+	
+	[commands.shutdown] = function (message)
+		message.channel:send("Shutting down gracefully\nAm no longer alive")
+		client:stop()
 	end
 }
 
@@ -160,7 +167,7 @@ client:on('messageCreate', function(message)
 end)
 
 client:on('ready', function()
-	--client:getUser("188731184501620736"):getPrivateChannel():send("It's alive!")
+	client:getUser("272093076778909707"):getPrivateChannel():send("It's alive!")
 end)
 
 client:run('Bot '..config.token)
