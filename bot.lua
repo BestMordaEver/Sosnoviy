@@ -8,7 +8,6 @@ local groups = persistence.load(config.savefile) or {}	-- all changes to groups 
 ]]
 
 local client = discordia.Client()
-local mutex = discordia.Mutex()
 						-- all commands should follow the same pattern - prefix + command + arguments
 local commands = {		-- commands are one-word only. you can have space between prefix and command ("+ add" is valid")
 	prefix = "+",
@@ -28,11 +27,17 @@ local commands = {		-- commands are one-word only. you can have space between pr
 	test = "test"
 }
 
+local activityStatus = {
+	playing = 0,
+	streaming = 1,
+	listening = 2,
+	watching = 3
+}
+
 local statusResolve = function (messageString)
 	if type(messageString) ~= "string" then return nil end
-	local _,_, statusType, status = messageString:find("(%w+)%s(.*)")	-- statusType can be either number or string
-	local success = pcall(function () if not tonumber(statusType) then statusType = discordia.enums.activityType[statusType:lower()] end end)
-	return (success and {type = statusType, name = status} or nil)
+	local _,_, statusType, status = messageString:gsub("listening to", "listening", 1):find("(%w+)%s(.*)")
+	return (activityStatus[statusType] and {type = activityStatus[statusType], name = status} or nil)
 end
 
 local actions = {
