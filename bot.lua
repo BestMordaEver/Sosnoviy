@@ -43,7 +43,7 @@ end
 local actions = {
 	[commands.add] = function (message)
 		message.channel:broadcastTyping()
-		local _, _, groupName, channelID = message.content:find(commands.add.."%s(%w+)%s?(%d*)")
+		local _, _, groupName, channelID = message.content:find(commands.add.."%s(%S+)%s?(%d*)")
 		if channelID == "" then channelID = message.channel.id end	-- if channelid is not present, bot defaults to current channel, same for other commands
 		if groupName == "" then
 			message:reply("Can't create group with empty name")
@@ -61,7 +61,7 @@ local actions = {
 	
 	[commands.remove] = function (message)
 		message.channel:broadcastTyping()
-		local _, _, groupName, channelID = message.content:find(commands.remove.."%s(%w+)%s?(%d*)")
+		local _, _, groupName, channelID = message.content:find(commands.remove.."%s(%S+)%s?(%d*)")
 		if channelID == "" then channelID = message.channel.id end
 		if groups[groupName] then
 			if client:getChannel(channelID) then
@@ -86,7 +86,8 @@ local actions = {
 	
 	[commands.send] = function (message)
 		message.channel:broadcastTyping()
-		local _, _, groupName, msg = message.content:find(commands.send.."%s(%w+)%s(.*)")
+		-- +send Теперь я...
+		local _, _, groupName, msg = message.content:find(commands.send.."%s(%S+)%s(.*)")
 		if groups[groupName] then
 			message:reply("Sending message to `"..groupName.."` group")
 			for k, _ in pairs(groups[groupName]) do
@@ -101,7 +102,7 @@ local actions = {
 	
 	[commands.delete] = function (message)
 		message.channel:broadcastTyping()
-		local _, _, groupName = message.content:find(commands.delete.."%s(%w+)")
+		local _, _, groupName = message.content:find(commands.delete.."%s(%S+)")
 		if groups[groupName] then
 			for k, v in pairs(groups[groupName]) do
 				client:getChannel(k):getMessage(v):delete()
@@ -114,7 +115,7 @@ local actions = {
 	
 	[commands.edit] = function (message)
 		message.channel:broadcastTyping()
-		local _, _, groupName, msg = message.content:find(commands.edit.."%s(%w+)%s(.*)")
+		local _, _, groupName, msg = message.content:find(commands.edit.."%s(%S+)%s(.*)")
 		if groups[groupName] then
 			message:reply("Editing last message sent to `"..groupName.."` group")
 			for k, v in pairs(groups[groupName]) do
@@ -185,6 +186,7 @@ end)
 
 client:on('ready', function()
 	--client:getUser("188731184501620736"):getPrivateChannel():send("It's alive!")
+	client:setGame({type = 3, name = "the world go by"})
 end)
 
 client:run('Bot '..config.token)
