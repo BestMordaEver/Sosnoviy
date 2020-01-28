@@ -172,20 +172,20 @@ local actions = {
 	end,
 	
 	[commands.shutdown] = function (message)
-		message:reply("Shutting down gracefully\nAm no longer alive")
+		message:reply("Shutting down gracefully")
 		client:stop()
 	end
 }
 
-client:on('messageCreate', function(message)
+client:on('messageCreate', function (message)
 	if message.author.id ~= "272093076778909707" and message.author.id ~= "188731184501620736" then return end	-- Only Bor is valid...
 	local _, _, command = message.content:find(commands.prefix.."%s?(%a+).*")
 	local res, msg = pcall(function() if actions[command] then actions[command](message) end end)
 	if not res then message:reply("Something went wrong, outputting error message...\n"..msg) end
 end)
 
-client:on('ready', function()
-	--client:getUser("188731184501620736"):getPrivateChannel():send("It's alive!")
+client:on('ready', function ()
+	client:getUser("188731184501620736"):send("It's alive!")
 	client:setGame({type = 3, name = "the world go by"})
 end)
 
