@@ -6,8 +6,9 @@ local groups = persistence.load(config.savefile) or {}	-- all changes to groups 
 --[[ groups save data in following format
 {"groupName" = {"channelID" = "lastmsgID"}}
 ]]
-
+local vmMonitor = 5
 local client = discordia.Client()
+local clock = discordia.Clock()
 						-- all commands should follow the same pattern - prefix + command + arguments
 local commands = {		-- commands are one-word only. you can have space between prefix and command ("+ add" is valid")
 	prefix = "+",
@@ -23,8 +24,7 @@ local commands = {		-- commands are one-word only. you can have space between pr
 	list = "list",		-- print out the list of registered groups and channels in them
 	help = "help",		-- print out help text
 	status = "status", 	-- set bot status
-	shutdown = "shutdown",
-	test = "test"
+	shutdown = "shutdown"
 }
 
 local activityStatus = {
@@ -178,6 +178,10 @@ local actions = {
 }
 
 client:on('messageCreate', function (message)
+	if message.author.id == "601347755046076427" and message.channel.id == "676791988518912020" and message.content == "beep boop beep" then
+		vmMonitor = 5
+		return
+	end
 	if message.author.id ~= "272093076778909707" and message.author.id ~= "188731184501620736" then return end	-- Only Bor is valid...
 	local _, _, command = message.content:find(commands.prefix.."%s?(%a+).*")
 	local res, msg = pcall(function() if actions[command] then actions[command](message) end end)
@@ -187,6 +191,14 @@ end)
 client:on('ready', function ()
 	client:getUser("188731184501620736"):send("It's alive!")
 	client:setGame({type = 3, name = "the world go by"})
+end)
+
+clock:min('min', function ()
+	vmMonitor = vmMonitor - 1
+	if vmMonitor < 0 then 
+		vmMonitor = 5
+		client:getChannel("676791988518912020"):send("<@!188731184501620736> <@!272093076778909707> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	end
 end)
 
 client:run('Bot '..config.token)
