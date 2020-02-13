@@ -173,6 +173,7 @@ local actions = {
 	
 	[commands.shutdown] = function (message)
 		message:reply("Shutting down gracefully")
+		clock:stop()
 		client:stop()
 	end
 }
@@ -189,11 +190,12 @@ client:on('messageCreate', function (message)
 end)
 
 client:on('ready', function ()
+	clock:start()
 	client:getUser("188731184501620736"):send("It's alive!")
 	client:setGame({type = 3, name = "the world go by"})
 end)
 
-clock:min('min', function ()
+clock:on('min', function ()
 	vmMonitor = vmMonitor - 1
 	if vmMonitor < 0 then 
 		vmMonitor = 5
