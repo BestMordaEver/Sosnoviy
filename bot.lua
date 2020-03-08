@@ -86,7 +86,6 @@ local actions = {
 	
 	[commands.send] = function (message)
 		message.channel:broadcastTyping()
-		-- +send Теперь я...
 		local _, _, groupName, msg = message.content:find(commands.send.."%s(%S+)%s(.*)")
 		if groups[groupName] then
 			message:reply("Sending message to `"..groupName.."` group")
@@ -191,7 +190,7 @@ end)
 
 client:on('ready', function ()
 	clock:start()
-	client:getUser("188731184501620736"):send("It's alive!")
+	client:getChannel("676432067566895111"):send("It's alive!")
 	client:setGame({type = 3, name = "the world go by"})
 end)
 
