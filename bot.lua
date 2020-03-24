@@ -178,14 +178,24 @@ local actions = {
 }
 
 client:on('messageCreate', function (message)
-	if message.author.id == "601347755046076427" and message.channel.id == "676791988518912020" and message.content == "beep boop beep" then
-		vmMonitor = 5
-		return
-	end
 	if message.author.id ~= "272093076778909707" and message.author.id ~= "188731184501620736" then return end	-- Only Bor is valid...
 	local _, _, command = message.content:find(commands.prefix.."%s?(%a+).*")
 	local res, msg = pcall(function() if actions[command] then actions[command](message) end end)
 	if not res then message:reply("Something went wrong, outputting error message...\n"..msg) end
+end)
+
+client:on('messageUpdate', function (message)	-- vm hearbeat
+	if message.author.id == "601347755046076427" and message.channel.id == "676791988518912020"then
+		vmMonitor = 5
+		return
+	end
+end)
+
+client:on('messageUpdateUncached', function (channel, messageID)
+	if channel:getMessage(messageID).author.id == "601347755046076427" and channel.id == "676791988518912020" then
+		vmMonitor = 5
+		return
+	end
 end)
 
 client:on('ready', function ()
